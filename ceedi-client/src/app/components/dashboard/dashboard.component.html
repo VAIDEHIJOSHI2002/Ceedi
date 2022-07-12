@@ -1,0 +1,203 @@
+<!--<div class="container-fluid">
+  <div class="row">
+    <nav class="col-md-2 d-md-block bg-light sidebar">
+      <div class="sidebar-sticky">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active">
+              <i class="fas fa-user"></i>User Profile
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" (click)="authService.SignOut()">
+              <i class="fas fa-sign-out-alt"></i>Log out
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <p>{{user.email}}</p>
+{{token}}
+<button (click)="authService.idtoken()">id</button>
+<button (click)="authService.getUserType('reshmaavvaru@gmail.com')">type</button>
+  </div>
+</div>-->
+<div class="">
+  <nav class="navbar navbar-expand-lg navbar-light nav-color p-3">
+    <a class="navbar-brand"><img src="/assets/Ceedi.png" height="50" alt=""><i> manager</i></a>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a (click)="productForm()" class="nav-link">New Product</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" (click)="getAllProducts()">All Products</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" (click)="getAllOrders()">Orders</a>
+        </li>
+        <!--<li class="nav-item">
+          <a class="nav-link" (click)="getAllRiders($event)">Riders</a>
+        </li>-->
+        <li class="nav-item">
+            <a class="nav-link" (click)="authService.SignOut()">
+              <i class="fas fa-sign-out-alt"></i>Log out
+            </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+<div class="container">
+  <div [hidden]="hideForm" class="signup-form">
+      <form>
+      <div>
+      <h2>New Item</h2>
+      <div class="form-group">
+        <input type="file" accept="image/*" class="form-control" name="image" required="required" #image required (change)="test($event)">
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" name="title" placeholder="Product name" required="required" #title required>
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" name="description" placeholder="Description" required="required" #desc required>
+      </div>
+      <div class="form-group">
+        <input type="number" class="form-control" name="price" placeholder="price" required="required" #price required>
+      </div>
+      <div class="form-group">
+        <input type="number" class="form-control" name="quantity" placeholder="quantity" required="required" #quantity required>
+      </div>
+      <div class="form-group">
+        <button type="button" (click)="addNewProduct(title.value,desc.value,price.value,quantity.value)"  class="btn btn-lg btn-block">Add</button>
+      </div>
+      </div>
+      </form>
+  </div>
+  <table [hidden]="hideProducts" class="table bg-light ">
+    <thead>
+      <tr>
+        <th scope="col">Image</th>
+        <th scope="col">Name</th>
+        <th scope="col">Price</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">edit</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of products">
+        <th scope="row "><img class="img-thumbnail rounded avatar" src="{{p.image}}"></th>
+        <td>{{p.title}}</td>
+        <td>{{p.price}}</td>
+        <td>{{p.quantity}}</td>
+        <td><button class="btn btn-sm"  id="{{p.title}}" (click)="open($event,mymodal)">Edit</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <table [hidden]="hideOrders" class="table">
+    <thead>
+      <tr>
+        <th scope="col">Date</th>
+        <th scope="col">Client</th>
+        <th scope="col">Status</th>
+        <th scope="col">Payment</th>
+        <th scope="col">Total</th>
+        <th scope="col">Products</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let o of orders" [ngClass]="{'bg-green': o.outcome === 'DELIVERED', 'bg-red': o.outcome === 'YET_TO_RESPOND'}">
+        <td>{{o.date}}</td>
+        <td>{{o.clientEmail}} 
+        <i class="icon" (click)="showMap(o.address.latitude,o.address.longitude, mapmodal)">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        </i>
+        </td>
+        <td>{{o.outcome}}</td>
+        <td>{{o.payment}}</td>
+        <td>{{o.total}}</td>
+        <td>
+        <ol>
+        <li *ngFor="let p of o.products" >
+        <ul>
+        <li>Name: {{p.title}}</li>
+        <li>No. {{p.quantity}}</li>
+        <li>Price {{p.price}}</li>
+        </ul>
+        
+        </li>
+        </ol>
+        </td>
+        <td ><button id="{{o.date}}" (click)="getAllRiders($event)" class="btn" *ngIf="o.outcome=='YET_TO_RESPOND'||o.outcome=='REJECTED'" >Rider</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <table [hidden]="hideRiders" class="table bg-light ">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Distance</th>
+        <th scope="col">Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of riders">
+        <td>{{r.rider}}</td>
+        <td>{{r.prop.distance}} <span *ngIf="r.prop.distance!='can not reach'">km</span></td>
+        <td>{{r.prop.time}} <span *ngIf="r.prop.time!='can not reach'">Min</span></td>
+        <td><button id="{{r.rider}}" (click)="chooseRider($event)" class="btn btn-sm">Choose</button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<ng-template  #mapmodal let-modal>
+  <div class="modal-header">
+  <h4 class="modal-title" id="modal-basic-title">Client Location</h4>
+  <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">x</button>
+  </div>
+  <div class="modal-body">
+  <agm-map
+      [latitude]="lat"
+      [longitude]="lng"
+      [mapTypeId]="mapType"
+    >
+    </agm-map>
+  </div>
+</ng-template>
+<!--<button class="btn btn-primary" (click)="authService.distance()">id</button>-->
+<ng-template #mymodal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Edit</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">x</button>
+    </div>
+    <div class="modal-body">
+    <form>
+      <div>
+      <!--<div class="form-group">
+        <input type="image" class="form-control" name="image" [value]="toedit.image" #eimage required>
+      </div>-->
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" class="form-control" name="title"  required="required" [value]="toedit.title" #etitle required>
+      </div>
+      <div class="form-group">
+      <label>Description</label>
+        <input type="text" class="form-control" name="description" required="required" [value]="toedit.description" #edesc required>
+      </div>
+      <div class="form-group">
+      <label>Price</label>
+        <input type="number" class="form-control" name="price" required="required" [value]="toedit.price" #eprice required>
+      </div>
+      <div class="form-group">
+      <label>Quantity</label>
+        <input type="number" class="form-control" name="quantity" required="required" [value]="toedit.quantity" #equantity required>
+      </div>
+      <div class="form-group">
+        <button type="button" (click)="onSubmit(etitle.value,edesc.value,eprice.value,equantity.value)"  class="btn btn-lg btn-block">Save Changes</button>
+      </div>
+      </div>
+      </form>
+      </div>
+</ng-template>
